@@ -11,7 +11,7 @@ class ViewController: UIViewController {
     
     private var collectionView: UICollectionView!
     
-    private var gridConfig: GridConfiguration!
+    private var gridConfig: ExpandedGridSizeCalculator!
     
     private lazy var dataService: DataServiceProtocol = DataService()
     
@@ -33,7 +33,7 @@ class ViewController: UIViewController {
     
     private func setupCollectionView() {
         
-        gridConfig = GridConfiguration(defaultSize: .zero, columnCount: 3, itemsCount: data.count)
+        gridConfig = SquareExpandedGridSizeCalculator(defaultSize: .zero, columnCount: 3, itemsCount: data.count)
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -49,6 +49,7 @@ class ViewController: UIViewController {
         let size = CGSize(width: squreSizeWidth, height: squreSizeWidth)
         
         gridConfig.defaultSize = size
+        gridConfig.calculateSizesForItem()
         
         collectionView.delegate = self
         collectionView.dataSource = dataSource
@@ -124,7 +125,7 @@ extension ViewController: UICollectionViewDelegateFlowLayout {
                    sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         
-        return gridConfig.cellSizes[indexPath.item]
+        return gridConfig.itemSizes[indexPath.item]
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -133,88 +134,5 @@ extension ViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 10
-    }
-}
-
-
-fileprivate struct GridConfiguration {
-    var defaultSize: CGSize {
-        didSet {
-            calculateSizesForCells()
-        }
-    }
-    
-    var itemsCount: Int
-    var columnCount: Int
-    var cellSizes: [CGSize] = []
-    
-    // secelted row and column
-    var selectedPoint: (r: Int, c: Int)? = nil
-    
-    var expandedHeightForRows: CGFloat = 80
-    var expandedWidthForColumns: CGFloat = 80
-    
-    init(defaultSize: CGSize, columnCount: Int, itemsCount: Int) {
-        self.defaultSize = defaultSize
-        self.columnCount = columnCount
-        self.itemsCount = itemsCount
-        calculateSizesForCells()
-    }
-    
-    mutating func calculateSizesForCells() {
-        cellSizes = []
-        cellSizes.append(contentsOf: repeatElement(defaultSize, count: itemsCount))
-        
-        guard let selectedPoint = self.selectedPoint else {
-            return
-        }
-        
-        for i in 0..<cellSizes.count {
-            
-            let index = i + 1
-            
-            let row = getRowByIndex(index)
-            let column = getColumnByIndex(index)
-            
-            if selectedPoint.r == row {
-                cellSizes[i].height += expandedHeightForRows
-            }
-
-            if selectedPoint.c == column {
-                cellSizes[i].width += expandedWidthForColumns
-            } else {
-                cellSizes[i].width -= expandedWidthForColumns / CGFloat(columnCount - 1)
-            }
-        }
-    }
-    
-    mutating func setSelected(by index: Int) {
-        let row = getRowByIndex(index + 1)
-        let column = getColumnByIndex(index + 1)
-        selectedPoint = (r: row, c: column)
-        calculateSizesForCells()
-    }
-    
-    func isSelectedIndex(_ index: Int) -> Bool {
-        guard let selectedPoint = self.selectedPoint else { return false }
-        let row = getRowByIndex(index + 1)
-        let column = getColumnByIndex(index + 1)
-        return selectedPoint == (r: row, c: column)
-    }
-    
-    private func getRowByIndex(_ index: Int) -> Int {
-        let value = Double(index) / Double(columnCount)
-        return Int(ceil(value)) - 1
-    }
-    
-    private func getColumnByIndex(_ index: Int) -> Int {
-        var column =  index % columnCount
-        if column == 0 {
-            return columnCount - 1
-        }
-
-        column -= 1
-        
-        return column
     }
 }
