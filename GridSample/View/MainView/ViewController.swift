@@ -37,15 +37,17 @@ class ViewController: UIViewController {
         
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 8
-        layout.minimumInteritemSpacing = 4
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: layout)
+        collectionView.contentInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
         
         self.view.addSubview(collectionView)
         
-        let widthPerItem = collectionView.frame.width / CGFloat(gridConfig.columnCount) - layout.minimumInteritemSpacing
-        let squreSizeWidth = ceil(widthPerItem - 8)
+        let contentWidth = collectionView.frame.width - 16
+        let widthPerItem = contentWidth / CGFloat(gridConfig.columnCount)
+        let squreSizeWidth = (widthPerItem).rounded(.down)
         let size = CGSize(width: squreSizeWidth, height: squreSizeWidth)
         
         gridConfig.defaultSize = size
@@ -81,7 +83,7 @@ class ViewController: UIViewController {
             
             var background = UIBackgroundConfiguration.listPlainCell()
             background.cornerRadius = 10
-            background.backgroundColor = .lightGray
+            background.backgroundColor = .white
             background.strokeWidth = 0.5
             background.strokeColor = .gray
             
@@ -115,24 +117,10 @@ extension ViewController: UICollectionViewDelegate {
 
 extension ViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
-                  layout collectionViewLayout: UICollectionViewLayout,
-                  insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 1.0, left: 8.0, bottom: 1.0, right: 8.0)
-    }
-
-    func collectionView(_ collectionView: UICollectionView,
                    layout collectionViewLayout: UICollectionViewLayout,
                    sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         
         return gridConfig.itemSizes[indexPath.item]
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 10
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 10
     }
 }
