@@ -22,30 +22,6 @@ class GridSampleUITests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testGridsItemTap() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-        
-        XCTAssertEqual(app.cells.count, 9)
-        
-        let centerIndex = app.collectionViews.children(matching: .cell).count - 5
-        
-        let currentSize = app.collectionViews.cells.element(boundBy: centerIndex).frame.size
-        let rightSize = CGSize(width: currentSize.width + 80, height: currentSize.height + 80)
-        
-        let centerCell = app.collectionViews.cells.element(boundBy: centerIndex)
-        
-        XCTAssertTrue(centerCell.staticTexts["Look 5"].exists)
-        
-        centerCell.tap()
-        
-        XCTAssertEqual(centerCell.frame.size, rightSize)
-        
-        XCTAssertTrue(centerCell.staticTexts["Some additional info"].exists)
-        
-    }
-
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
             // This measures how long it takes to launch your application.
